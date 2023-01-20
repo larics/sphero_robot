@@ -18,7 +18,7 @@
     <!--  -->
 
     <!-- Start velocity multiplexer for mixing signals from PID and joystick. -->
-    <node pkg="sphero_bringup" type="twist_mux_launcher.sh" name="twist_mux_launcher" args="joy_pid" output="screen"/>
+    <node pkg="sphero_bringup" type="twist_mux_launcher.sh" name="twist_mux_launcher" args="joy_ext" output="screen"/>
 
     <!-- Start Optitrack localization with Kalman filtering. -->
     <include file="$(find sphero_localization)/launch/webcam_localization.launch"/>
