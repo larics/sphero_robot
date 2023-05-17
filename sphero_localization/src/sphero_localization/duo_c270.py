@@ -80,9 +80,18 @@ class WebcamStream(object):
                 self.new_frame = True
 
     def read(self):
+        # To keep the desired frame rate, we must return the frame immediately, 
+        # and not wait for the next frame to be read. However, the frame is
+        # returned as a reference, and it can be later modified when visualizing
+        # detections. In this case, the modified frame from one moment will be
+        # input to the detection algorithm in the next moment, which will break
+        # it. To avoid this, we return a copy of the frame.
+        # TODO: Not sure what will happen in the unlikely case that this method 
+        # is called between the moment the frame is read in the update method 
+        # and the moment the new_frame flag is set to True.  
         if self.is_async:
-            while not self.new_frame:
-                pass
+            if not self.new_frame:
+                return self.frame.copy()
 
             with self.lock:
                 self.new_frame = False
