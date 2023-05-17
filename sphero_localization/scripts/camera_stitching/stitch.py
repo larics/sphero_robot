@@ -106,6 +106,8 @@ def main():
     with open(save_path, "w") as f:
         json.dump(final_img, f, indent=4)
         
+    cv2.imwrite(Path(__file__).parent / 'pictures/stitched.png', cropped)
+        
     cv2.destroyAllWindows()
 
 
