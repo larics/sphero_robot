@@ -2,26 +2,35 @@
 This script takes the saved images containing a calibration pattern, 
 calculates the optimal camera parameters, and saves them to a json file.
 """
-import numpy as np
-import cv2 as cv
 import glob
 import json
-from datetime import datetime
+from pathlib import Path
 
-criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+import cv2 as cv
+import numpy as np
 
+
+## Make your changes here...
+calibration_filename = 'camera_south.json'
+############################
+
+# Calibration pattern properties.
 rows = 5 - 1
 columns = 7 - 1
 square_size_meters = 40 * 0.001
+criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 objp = np.zeros((rows*columns,3), np.float32)
 objp[:,:2] = np.mgrid[0:columns,0:rows].T.reshape(-1,2) * square_size_meters
-
 objpoints = []
 imgpoints = []
 
-images = glob.glob('pictures/raw/calibrate*.png')
+# Load images.
+load_path = Path(__file__).parent / 'pictures/raw'
+images = list(load_path.glob('calibrate*.png'))
 print(len(images), "images found")
+
+save_path = Path(__file__).parent / 'pictures/detected'
 
 for fname in images:
     img = cv.imread(fname)
@@ -37,7 +46,7 @@ for fname in images:
 
         cv.drawChessboardCorners(img, (columns,rows), corners2, ret)
         cv.imshow('img', img)
-        cv.imwrite(f"pictures/detected/corners_{fname.partition('_')[2]}", img)
+        cv.imwrite(f"{save_path}/corners_{fname.partition('_')[2]}", img)
         cv.waitKey(1500)
 
 ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
@@ -54,7 +63,8 @@ class NumpyEncoder(json.JSONEncoder):
 for variable in ['ret', 'mtx', 'dist', 'rvecs', 'tvecs']:
     camera[variable] = eval(variable)
 
-with open("camera.json", 'w') as f:
+config_path = Path(__file__).parent / '../../config' / calibration_filename
+with open(config_path, 'w') as f:
     json.dump(camera, f, indent=4, cls=NumpyEncoder)
 
 cv.destroyAllWindows()

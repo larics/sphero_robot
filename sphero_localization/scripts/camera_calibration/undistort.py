@@ -3,19 +3,28 @@ This script can be used to validate the camera calibration results. It reads the
 saved calibration images from files, applies the calibrated camera model, and
 saves the new undistored images to disk.
 """
-import numpy as np
-import cv2 as cv
 import glob
 import json
-from datetime import datetime
+from pathlib import Path
+
+import cv2 as cv
+import numpy as np
 
 
-with open('camera.json', 'r') as json_file:
+## Make your changes here...
+calibration_filename = 'camera_south.json'
+############################
+
+# Load calibration parameters.
+path = Path(__file__).parent / '../../config' / calibration_filename
+with open(path, 'r') as json_file:
     camera_data = json.load(json_file)
 dist = np.array(camera_data["dist"])
 mtx = np.array(camera_data["mtx"])
 
-images = glob.glob('pictures/raw/calibrate*.png')
+# Load images
+load_path = Path(__file__).parent / 'pictures/raw'
+images = list(load_path.glob('calibrate*.png'))
 print(len(images), "images found")
 
 assert len(images) > 0
@@ -28,6 +37,8 @@ x, y, w1, h1 = roi
 yh1 = y + h1
 xw1 = x + w1
 
+save_path = Path(__file__).parent / 'pictures/fixed'
+
 for fname in images:
     img = cv.imread(fname)
 
@@ -35,5 +46,5 @@ for fname in images:
     # dst = dst[y:yh1, x:xw1]
 
     cv.imshow('img', dst)
-    cv.imwrite(f"pictures/fixed/remapped_{fname.partition('_')[2]}", dst)
-    # cv.waitKey(1000)
+    cv.imwrite(f"{save_path}/remapped_{fname.partition('_')[2]}", dst)
+    cv.waitKey(1000)

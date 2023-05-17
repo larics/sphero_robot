@@ -13,8 +13,13 @@ import beepy
 import cv2
 from imutils.video import VideoStream
 
+
+## Make your changes here...
+camera_path = '/dev/video2'
+############################
+
 ## Specify device path and resolution
-vs = VideoStream(src='/dev/video2')
+vs = VideoStream(src=camera_path)
 vs.stream.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 vs.stream.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)
 vs.start()
